@@ -1,0 +1,50 @@
+---
+title: "Modelos Probabilistas en C"
+---
+
+# Bienvenido al Proyecto de Modelos Probabilistas
+
+Este es un proyecto completo de implementación de algoritmos de modelos probabilistas en lenguaje C.
+
+## Documentación Principal
+
+📖 **[Ver Documentación Completa](proyecto-modelos-probabilistas.qmd)**
+
+## Características Destacadas
+
+- ✅ **Redes Bayesianas** con construcción interactiva
+- ✅ **Algoritmo de Viterbi** para HMM
+- ✅ **Predicción del clima** basada en observaciones
+- ✅ **Validación robusta** de datos
+- ✅ **Gestión automática** de memoria
+- ✅ **Documentación exhaustiva** con fórmulas matemáticas
+
+## Inicio Rápido
+
+```bash
+# Clonar y compilar
+git clone <repository>
+cd modelos-probabilistas
+make all
+
+# Ejecutar programa principal
+make run
+
+# Ejecutar tests
+make run-all-tests
+```
+
+## Estructura del Proyecto
+
+```
+modelos-probabilistas/
+├── src/                    # Código fuente
+├── tests/                  # Datos de prueba
+├── docs/                   # Documentación
+├── build/                  # Archivos compilados
+└── Makefile               # Sistema de compilación
+```
+
+## Contacto
+
+Para preguntas o contribuciones, consulte la documentación completa.

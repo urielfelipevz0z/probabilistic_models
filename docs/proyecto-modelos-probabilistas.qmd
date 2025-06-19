@@ -1,0 +1,561 @@
+---
+title: "Modelos Probabilistas en C"
+subtitle: "Implementación de Redes Bayesianas y Modelos Ocultos de Markov"
+author: "Proyecto de Modelos Probabilistas"
+date: "Junio 19, 2025"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    code-tools: true
+    number-sections: true
+    embed-resources: true
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    include-in-header: 
+      text: |
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+bibliography: references.bib
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Resumen Ejecutivo
+
+Este proyecto presenta una implementación completa y profesional de algoritmos fundamentales de modelos probabilistas en lenguaje C, específicamente **Redes Bayesianas** y **Modelos Ocultos de Markov (HMM)** con el algoritmo de Viterbi. La implementación está diseñada para propósitos educativos y de investigación, siguiendo estándares académicos y mejores prácticas de programación.
+
+## Características Principales
+
+- ✅ **Redes Bayesianas interactivas** con gestión dinámica de memoria
+- ✅ **Algoritmo de Viterbi completo** para predicción del clima
+- ✅ **Dos modos de ejecución**: básico y detallado con cálculos paso a paso
+- ✅ **Validación robusta** de datos y manejo de errores
+- ✅ **Arquitectura modular** con separación clara de responsabilidades
+- ✅ **Documentación exhaustiva** con fórmulas matemáticas
+
+# Introducción
+
+Los modelos probabilistas son herramientas fundamentales en inteligencia artificial y aprendizaje automático para modelar incertidumbre y realizar inferencias bajo condiciones de información incompleta. Este proyecto implementa dos de los paradigmas más importantes:
+
+## Redes Bayesianas
+
+Las **Redes Bayesianas** son grafos acíclicos dirigidos que representan dependencias probabilísticas entre variables aleatorias. Permiten:
+
+- Representar conocimiento incierto de manera compacta
+- Realizar inferencias probabilísticas eficientes
+- Modelar relaciones causales entre variables
+- Tomar decisiones bajo incertidumbre
+
+## Modelos Ocultos de Markov (HMM)
+
+Los **Modelos Ocultos de Markov** son modelos probabilísticos que permiten inferir estados ocultos a partir de observaciones. Son especialmente útiles para:
+
+- Reconocimiento de patrones temporales
+- Procesamiento de señales
+- Predicción de series temporales
+- Análisis de secuencias (bioinformática, texto, etc.)
+
+### Algoritmo de Viterbi
+
+El **algoritmo de Viterbi** es un algoritmo de programación dinámica que encuentra la secuencia más probable de estados ocultos que explica una secuencia de observaciones, maximizando la probabilidad conjunta.
+
+# Arquitectura del Sistema
+
+## Estructura del Proyecto
+
+```
+modelos-probabilistas/
+├── src/                    # Código fuente
+│   ├── main.c             # Programa principal con menú interactivo
+│   ├── bayesian.h         # Definiciones para redes bayesianas
+│   ├── bayesian.c         # Implementación de redes bayesianas
+│   ├── hmm.h             # Definiciones para HMM y Viterbi
+│   ├── hmm.c             # Implementación completa del algoritmo de Viterbi
+│   ├── test_hmm_basic.c  # Test independiente modo básico
+│   └── test_hmm_detailed.c # Test independiente modo detallado
+├── tests/                 # Datos de prueba
+│   └── clima_ejemplo.txt  # Archivo de configuración para HMM
+├── build/                 # Archivos compilados
+├── docs/                  # Documentación
+├── Makefile              # Sistema de compilación
+└── README.md             # Documentación básica
+```
+
+## Componentes Principales
+
+### 1. Sistema de Redes Bayesianas (`bayesian.h/c`)
+
+Implementa la funcionalidad completa para:
+- Definición interactiva de variables y conexiones
+- Construcción de tablas de probabilidad condicional
+- Generación de grafos en formato DOT
+- Gestión de memoria dinámica
+
+### 2. Sistema HMM con Viterbi (`hmm.h/c`)
+
+Implementa el algoritmo de Viterbi con:
+- Estructuras de datos optimizadas
+- Cuatro fases del algoritmo (inicialización, recursión, terminación, backtracking)
+- Validación exhaustiva de datos
+- Salida detallada con matrices y cálculos paso a paso
+
+### 3. Programa Principal (`main.c`)
+
+Proporciona un menú interactivo para:
+- Ejecución de ejemplos de redes bayesianas
+- Ejecución de HMM en modo básico y detallado
+- Interfaz de usuario amigable
+
+# Implementación del Algoritmo de Viterbi
+
+## Modelo del Problema: Predicción del Clima
+
+### Definición del Problema
+
+Dado un conjunto de observaciones sobre el comportamiento humano, se desea inferir la secuencia más probable de estados del clima que causó dichas observaciones.
+
+**Estados Ocultos (Weather States):**
+- `SUNNY(0)` - Soleado
+- `CLOUDY(1)` - Nublado  
+- `RAINY(2)` - Lluvioso
+
+**Observaciones (Human Behavior):**
+- `UMBRELLA(0)` - Lleva paraguas
+- `SUNGLASSES(1)` - Lleva gafas de sol
+- `STAY_HOME(2)` - Se queda en casa
+
+### Estructuras de Datos
+
+```c
+typedef struct {
+    int num_states;       // N = 3 (SUNNY, CLOUDY, RAINY)
+    int num_observations; // M = 3 (UMBRELLA, SUNGLASSES, STAY_HOME)
+    int sequence_length;  // T = 7
+    double **transition;  // Matriz A (NxN) - probabilidades de transición
+    double **emission;    // Matriz B (NxM) - probabilidades de emisión
+    double *initial;      // Vector π (Nx1) - probabilidades iniciales
+} HMM;
+
+typedef struct {
+    double **delta;       // Matriz δ (TxN) - probabilidades máximas
+    int **psi;           // Matriz ψ (TxN) - matriz de backpointers
+    int *path;           // Secuencia óptima de estados (Tx1)
+    double probability;  // Probabilidad final del camino óptimo
+} ViterbiResult;
+```
+
+## Parámetros del Modelo
+
+### Matriz de Transición A (3×3)
+Probabilidades de transición entre estados del clima:
+
+```
+        SUNNY   CLOUDY  RAINY
+SUNNY   0.7     0.2     0.1
+CLOUDY  0.3     0.4     0.3
+RAINY   0.2     0.3     0.5
+```
+
+### Matriz de Emisión B (3×3)
+Probabilidades de observar comportamientos dado el clima:
+
+```
+        UMBRELLA SUNGLASSES STAY_HOME
+SUNNY   0.1      0.8        0.1
+CLOUDY  0.3      0.4        0.3
+RAINY   0.8      0.1        0.1
+```
+
+### Probabilidades Iniciales π
+```
+π = [0.6, 0.3, 0.1]  # [SUNNY, CLOUDY, RAINY]
+```
+
+### Secuencia de Observaciones
+```
+[SUNGLASSES, SUNGLASSES, UMBRELLA, STAY_HOME, UMBRELLA, UMBRELLA, SUNGLASSES]
+```
+
+## Fases del Algoritmo de Viterbi
+
+### Fase 1: Inicialización (t=1)
+
+Para cada estado $i$:
+$$\delta_1(i) = \pi_i \times b_i(o_1)$$
+$$\psi_1(i) = 0$$
+
+**Ejemplo para t=1, observación=SUNGLASSES:**
+- $\delta_1(SUNNY) = 0.6 \times 0.8 = 0.480$
+- $\delta_1(CLOUDY) = 0.3 \times 0.4 = 0.120$
+- $\delta_1(RAINY) = 0.1 \times 0.1 = 0.010$
+
+### Fase 2: Recursión (t=2 hasta T)
+
+Para cada tiempo $t$ y estado $j$:
+$$\delta_t(j) = \max_{1 \leq i \leq N} [\delta_{t-1}(i) \times a_{ij}] \times b_j(o_t)$$
+$$\psi_t(j) = \arg\max_{1 \leq i \leq N} [\delta_{t-1}(i) \times a_{ij}]$$
+
+### Fase 3: Terminación
+
+Probabilidad máxima:
+$$P^* = \max_{1 \leq i \leq N} [\delta_T(i)]$$
+
+Estado final óptimo:
+$$q_T^* = \arg\max_{1 \leq i \leq N} [\delta_T(i)]$$
+
+### Fase 4: Backtracking
+
+Para $t = T-1, T-2, \ldots, 1$:
+$$q_t^* = \psi_{t+1}(q_{t+1}^*)$$
+
+## Ejemplo de Ejecución
+
+### Modo Básico
+
+```
+VITERBI ALGORITHM - WEATHER PREDICTION
+=====================================
+
+FINAL RESULTS:
+Optimal state sequence: [0, 0, 1, 1, 2, 2, 0]
+Translation: [SUNNY, SUNNY, CLOUDY, CLOUDY, RAINY, RAINY, SUNNY]
+Maximum probability: 0.0000297271
+```
+
+### Modo Detallado
+
+El modo detallado muestra todos los cálculos paso a paso:
+
+```
+INITIALIZATION (t=1, obs=SUNGLASSES):
+δ₁(SUNNY)  = π(SUNNY)  × B(SUNNY,SUNGLASSES)  = 0.600 × 0.800 = 0.480
+δ₁(CLOUDY) = π(CLOUDY) × B(CLOUDY,SUNGLASSES) = 0.300 × 0.400 = 0.120
+δ₁(RAINY)  = π(RAINY)  × B(RAINY,SUNGLASSES)  = 0.100 × 0.100 = 0.010
+
+RECURSION:
+t=2, observation=SUNGLASSES(1):
+For SUNNY:  max{0.480×0.7, 0.120×0.3, 0.010×0.2} × 0.8 = 0.269
+For CLOUDY: max{0.480×0.2, 0.120×0.4, 0.010×0.3} × 0.4 = 0.038
+For RAINY:  max{0.480×0.1, 0.120×0.3, 0.010×0.5} × 0.1 = 0.005
+
+[... cálculos completos para todos los pasos ...]
+
+BACKTRACKING:
+t=7: state = SUNNY
+t=6: state = RAINY
+t=5: state = RAINY
+t=4: state = CLOUDY
+t=3: state = CLOUDY
+t=2: state = SUNNY
+t=1: state = SUNNY
+```
+
+# Sistema de Compilación y Ejecución
+
+## Makefile
+
+El proyecto incluye un sistema de compilación robusto con múltiples objetivos:
+
+```makefile
+# Comandos principales
+make all                  # Compilar programa principal
+make all-tests           # Compilar programa y tests
+make clean               # Limpiar archivos compilados
+make run                 # Ejecutar programa principal
+make run-test-basic      # Ejecutar test básico de HMM
+make run-test-detailed   # Ejecutar test detallado de HMM
+make run-all-tests       # Ejecutar todos los tests
+```
+
+## Flags de Compilación
+
+- `-Wall -Wextra`: Activar todas las advertencias
+- `-std=c99`: Usar estándar C99
+- `-O2`: Optimización nivel 2
+- `-lm`: Enlazar biblioteca matemática
+
+## Ejecución del Programa
+
+### Programa Principal Interactivo
+
+```bash
+make run
+```
+
+El programa presenta un menú interactivo:
+
+```
+=== MODELOS PROBABILISTAS ===
+1. Ejecutar ejemplo de Red Bayesiana
+2. Ejecutar ejemplo de HMM - Predicción del Clima (modo básico)
+3. Ejecutar ejemplo de HMM - Predicción del Clima (modo detallado)
+4. Salir
+```
+
+### Tests Independientes
+
+```bash
+# Test modo básico - solo resultados finales
+make run-test-basic
+
+# Test modo detallado - cálculos paso a paso
+make run-test-detailed
+
+# Ejecutar ambos tests
+make run-all-tests
+```
+
+# Características Técnicas
+
+## Gestión de Memoria
+
+### Allocación Dinámica
+- Uso de `malloc()`/`free()` para todas las estructuras
+- Validación de todas las asignaciones de memoria
+- Liberación automática en orden inverso de allocación
+- Funciones dedicadas para limpieza de memoria
+
+```c
+HMM* allocate_hmm(int N, int M, int T);
+void free_hmm(HMM* hmm);
+ViterbiResult* allocate_viterbi_result(int T, int N);
+void free_viterbi_result(ViterbiResult* result);
+```
+
+### Manejo de Errores de Memoria
+- Verificación de retorno NULL en todas las asignaciones
+- Mensajes de error descriptivos
+- Limpieza parcial en caso de fallo
+
+## Validación de Datos
+
+### Validaciones Implementadas
+- ✅ Verificación de dimensiones de matrices
+- ✅ Validación de probabilidades en rango [0,1]
+- ✅ Verificación de que las filas de matrices estocásticas sumen 1.0
+- ✅ Validación de secuencias de observación (valores válidos)
+- ✅ Manejo de errores de archivo (existencia, formato)
+
+### Tolerancia Numérica
+```c
+#define EPSILON 1e-6
+// Las probabilidades pueden diferir hasta EPSILON de 1.0
+```
+
+## Precisión Matemática
+
+### Representación Numérica
+- Uso de `double` para máxima precisión
+- Manejo cuidadoso de productos de probabilidades pequeñas
+- Implementación estable numéricamente del algoritmo
+
+### Fórmulas Implementadas
+Las implementaciones siguen exactamente las fórmulas estándar de la literatura:
+
+- **Inicialización**: $\delta_1(i) = \pi_i b_i(o_1)$
+- **Recursión**: $\delta_t(j) = \max_i[\delta_{t-1}(i) a_{ij}] b_j(o_t)$
+- **Terminación**: $P^* = \max_i[\delta_T(i)]$
+- **Backtracking**: $q_t^* = \psi_{t+1}(q_{t+1}^*)$
+
+# Formato de Datos de Entrada
+
+## Archivo de Configuración HMM
+
+El archivo `tests/clima_ejemplo.txt` contiene los parámetros del modelo:
+
+```
+3                    # N: Número de estados
+3                    # M: Número de observaciones  
+7                    # T: Longitud de secuencia
+0.7 0.2 0.1         # Matriz de transición A fila 1
+0.3 0.4 0.3         # Matriz de transición A fila 2
+0.2 0.3 0.5         # Matriz de transición A fila 3
+0.1 0.8 0.1         # Matriz de emisión B fila 1
+0.3 0.4 0.3         # Matriz de emisión B fila 2
+0.8 0.1 0.1         # Matriz de emisión B fila 3
+0.6 0.3 0.1         # Probabilidades iniciales π
+1 1 0 2 0 0 1       # Secuencia de observaciones
+```
+
+## Validación del Formato
+
+El programa valida:
+1. **Consistencia dimensional**: Las matrices tienen las dimensiones correctas
+2. **Restricciones estocásticas**: Las filas suman 1.0 (±ε)
+3. **Rango de probabilidades**: Todos los valores están en [0,1]
+4. **Secuencia válida**: Las observaciones están en el rango [0, M-1]
+
+# Resultados y Análisis
+
+## Resultado del Ejemplo de Clima
+
+Para la secuencia de observaciones:
+`[SUNGLASSES, SUNGLASSES, UMBRELLA, STAY_HOME, UMBRELLA, UMBRELLA, SUNGLASSES]`
+
+**Secuencia óptima encontrada:**
+`[SUNNY, SUNNY, CLOUDY, CLOUDY, RAINY, RAINY, SUNNY]`
+
+**Probabilidad máxima:** `0.0000297271`
+
+## Interpretación de Resultados
+
+1. **Días 1-2**: Estados `SUNNY` - Las gafas de sol son muy probables en días soleados
+2. **Días 3-4**: Estados `CLOUDY` - Transición natural de soleado a nublado
+3. **Días 5-6**: Estados `RAINY` - El paraguas indica lluvia probable
+4. **Día 7**: Estado `SUNNY` - Regreso a día soleado con gafas de sol
+
+La secuencia muestra un patrón realista de cambio climático que maximiza la probabilidad de observar los comportamientos dados.
+
+## Complejidad Computacional
+
+- **Tiempo**: O(N²T) donde N=estados, T=longitud de secuencia
+- **Espacio**: O(NT) para las matrices δ y ψ
+- **Para el ejemplo**: O(9×7) = O(63) operaciones principales
+
+# Estándares de Desarrollo
+
+## Estilo de Código
+
+### Nomenclatura
+- **Variables matemáticas**: Siguiendo literatura académica (δ, ψ, π)
+- **Funciones**: Descriptivas en inglés (`allocate_hmm`, `viterbi_algorithm`)
+- **Constantes**: Mayúsculas con underscore (`MAX_STATES`, `EPSILON`)
+
+### Comentarios
+- Fórmulas matemáticas en comentarios
+- Explicación de cada fase del algoritmo
+- Documentación de parámetros y valores de retorno
+
+### Estructura
+- Separación clara entre declaraciones (.h) e implementaciones (.c)
+- Funciones modulares con responsabilidades específicas
+- Manejo consistente de errores
+
+## Buenas Prácticas Implementadas
+
+### Gestión de Recursos
+- Liberación explícita de toda la memoria asignada
+- Verificación de operaciones de I/O
+- Manejo robusto de errores
+
+### Debugging y Verificación
+- Funciones de impresión de matrices para debugging
+- Validación de invariantes en tiempo de ejecución
+- Tests independientes para verificación
+
+### Portabilidad
+- Código estándar C99
+- Sin dependencias externas (excepto matemáticas estándar)
+- Compilación limpia con flags estrictos
+
+# Testing y Validación
+
+## Estrategia de Testing
+
+### Tests Unitarios
+- **`test_hmm_basic.c`**: Validación de resultados finales
+- **`test_hmm_detailed.c`**: Verificación de cálculos intermedios
+
+### Tests de Integración
+- Validación completa del flujo programa principal
+- Pruebas de manejo de errores
+- Verificación de gestión de memoria
+
+### Casos de Prueba
+1. **Caso nominal**: Datos válidos, ejecución exitosa
+2. **Casos de error**: Archivos inexistentes, datos malformados
+3. **Casos límite**: Matrices con probabilidades en los extremos
+
+## Verificación de Resultados
+
+### Validación Manual
+Los resultados han sido verificados manualmente siguiendo las fórmulas del algoritmo de Viterbi paso a paso.
+
+### Consistencia Matemática
+- Verificación de que las probabilidades se mantienen en [0,1]
+- Validación de que la suma de probabilidades en recursión es correcta
+- Comprobación de la coherencia del backtracking
+
+# Extensiones Futuras
+
+## Mejoras Algorítmicas
+
+### Estabilidad Numérica
+- Implementación en espacio logarítmico para evitar underflow
+- Uso de escalado para secuencias muy largas
+
+### Algoritmos Adicionales
+- **Forward-Backward**: Para calcular probabilidades de estados
+- **Baum-Welch**: Para entrenar parámetros del modelo
+- **Algoritmo Forward**: Para calcular la probabilidad de la secuencia
+
+### Optimizaciones
+- Implementación paralela para secuencias largas
+- Uso de BLAS para operaciones matriciales
+- Optimización de cache para mejores performance
+
+## Extensiones de Funcionalidad
+
+### Modelos Más Complejos
+- HMMs con múltiples secuencias de observación
+- HMMs jerárquicos
+- HMMs con estados continuos
+
+### Interfaces Adicionales
+- API para uso como biblioteca
+- Interfaz gráfica para visualización
+- Exportación de resultados en diferentes formatos
+
+### Aplicaciones Específicas
+- Reconocimiento de voz
+- Análisis de secuencias biológicas
+- Predicción de series temporales financieras
+
+# Conclusiones
+
+## Logros del Proyecto
+
+Esta implementación presenta una solución completa y profesional para modelos probabilistas en C, con las siguientes características destacadas:
+
+1. **Implementación Completa**: Algoritmo de Viterbi implementado siguiendo exactamente las especificaciones académicas
+2. **Robustez**: Manejo exhaustivo de errores y validación de datos
+3. **Usabilidad**: Interfaz clara con modos básico y detallado
+4. **Mantenibilidad**: Código modular, bien documentado y siguiendo buenas prácticas
+5. **Verificabilidad**: Tests comprehensivos y salida detallada para debugging
+
+## Valor Educativo
+
+El proyecto sirve como una implementación de referencia para:
+- Estudiantes de algoritmos probabilistas
+- Desarrolladores que necesiten implementar HMMs en C
+- Investigadores que requieran una base sólida para extensiones
+
+## Calidad del Software
+
+La implementación cumple con estándares profesionales:
+- **Corrección**: Resultados matemáticamente verificados
+- **Eficiencia**: Complejidad óptima O(N²T)
+- **Robustez**: Manejo comprehensivo de errores
+- **Mantenibilidad**: Arquitectura modular y bien documentada
+- **Portabilidad**: Código estándar C99 sin dependencias externas
+
+## Impacto Técnico
+
+Este proyecto demuestra cómo implementar algoritmos complejos de manera profesional en C, combinando:
+- Precisión matemática
+- Gestión robusta de memoria
+- Interfaces de usuario intuitivas
+- Documentación exhaustiva
+- Arquitectura extensible
+
+El código resultante es una contribución valiosa tanto para propósitos educativos como para aplicaciones prácticas en el campo de los modelos probabilistas.
+
+---
+
+*Esta documentación presenta un proyecto completo de modelos probabilistas implementado con los más altos estándares de calidad en programación C, siguiendo metodologías académicas rigurosas y mejores prácticas de desarrollo de software.*

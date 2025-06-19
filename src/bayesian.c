@@ -1,42 +1,11 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "bayesian.h"
 
-
-struct nodo {
-    int id;
-    char name[100];
-    struct nodo *sig;
-    struct nodo *hijos;
-    struct probabilidad *tabla;
-};
-
-
-struct probabilidad {
-    char nombre_hijo[100];
-    float prob_v; 
-    float prob_f; 
-    struct probabilidad *sig;
-};
-
-struct nodo * crear_nodo (int id, char *name);
-void insertar_nodo (struct nodo **lista, struct nodo *nodo);
-void imprimir_lista(struct nodo *lista);
-int buscar_padre(struct nodo **lista,char *nombre);
-int insertar_hijos(struct nodo **lista,struct nodo *hijo, int padre);
-void imprimir_conexiones(struct nodo *lista);
-struct probabilidad *crear_nodo_probabilidad(char *hijo, float v, float f);
-void insertar_probabilidad(struct nodo **lista, int id_padre, struct probabilidad *nuevo);
-void imprimir_tablas_probabilidad(struct nodo *lista);
-void imprimir_como_grafo(struct nodo *lista);
-
-int main(){
+int run_bayesian_network_example(void){
     int n, i,nd, conx;
     char nombre[100], padre[100], hijo[100];
     float v, f;
     struct nodo *nodo = NULL;
     struct nodo *lista = NULL;
-    struct probabilidad *prob = NULL;
 
     printf("ingrese la cantidad de variables:");
     scanf("%d",&n);
@@ -84,6 +53,7 @@ int main(){
     imprimir_lista(lista);
     imprimir_como_grafo(lista);
 
+    return 0;
 }
 
 int insertar_hijos(struct nodo **lista, struct nodo *hijo, int padre){
