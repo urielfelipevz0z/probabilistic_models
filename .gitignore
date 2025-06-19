@@ -1,0 +1,127 @@
+# Archivos compilados de C/C++
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Archivos de debug
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Archivos temporales del compilador
+*.gch
+*.pch
+
+# Archivos de CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+build/
+
+# Archivos de Python (para scripts de análisis)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Entornos virtuales de Python
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos de R (para análisis estadístico)
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+.Rproj.user/
+
+# Archivos de MATLAB
+*.asv
+*.m~
+
+# Archivos de datos grandes
+*.csv
+*.dat
+*.txt
+*.json
+!sample_*.csv
+!sample_*.dat
+!sample_*.txt
+!sample_*.json
+
+# Archivos de resultados y gráficos
+results/
+plots/
+figures/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.eps
+!docs/images/
+
+# Archivos de configuración local
+config.local.*
+.env
+.env.local
+
+# Archivos de sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de log
+*.log
+logs/
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Archivos de backup
+*.bak
+*.backup
+*~

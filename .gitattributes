@@ -1,0 +1,79 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Archivos de código fuente
+*.c text
+*.h text
+*.cpp text
+*.hpp text
+*.py text
+*.r text
+*.R text
+*.m text
+*.java text
+*.js text
+*.html text
+*.css text
+*.md text
+*.txt text
+*.csv text
+*.json text
+*.xml text
+*.yml text
+*.yaml text
+
+# Archivos de configuración
+*.conf text
+*.cfg text
+*.ini text
+Makefile text
+makefile text
+
+# Scripts de shell
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# Archivos que deben mantenerse como binarios
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+*.lib binary
+*.o binary
+*.obj binary
+
+# Imágenes
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+
+# Documentos
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Archivos de datos científicos
+*.mat binary
+*.RData binary
+*.rds binary
+*.pkl binary
+*.pickle binary
+*.npy binary
+*.npz binary
+
+# Git LFS tracking para archivos grandes de datos
+*.dataset filter=lfs diff=lfs merge=lfs -text
+*.data filter=lfs diff=lfs merge=lfs -text
+
+# Archivos de modelo entrenados
+*.model filter=lfs diff=lfs merge=lfs -text
+*.weights filter=lfs diff=lfs merge=lfs -text
