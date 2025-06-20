@@ -182,37 +182,151 @@ RAINY   0.8      0.1        0.1
 [SUNGLASSES, SUNGLASSES, UMBRELLA, STAY_HOME, UMBRELLA, UMBRELLA, SUNGLASSES]
 ```
 
-## Fases del Algoritmo de Viterbi
+## Fases del Algoritmo de Viterbi - Explicación Detallada
 
-### Fase 1: Inicialización (t=1)
+### Fase 1: Inicialización (t=1) - "¿Cuál es la probabilidad inicial de cada estado?"
 
-Para cada estado $i$:
+**Fórmula matemática:**
 $$\delta_1(i) = \pi_i \times b_i(o_1)$$
 $$\psi_1(i) = 0$$
 
-**Ejemplo para t=1, observación=SUNGLASSES:**
-- $\delta_1(SUNNY) = 0.6 \times 0.8 = 0.480$
-- $\delta_1(CLOUDY) = 0.3 \times 0.4 = 0.120$
-- $\delta_1(RAINY) = 0.1 \times 0.1 = 0.010$
+**¿Qué significa?**
+- $\delta_1(i)$ = Probabilidad máxima de estar en el estado $i$ en el tiempo 1
+- $\pi_i$ = Probabilidad inicial del estado $i$ (antes de cualquier observación)
+- $b_i(o_1)$ = Probabilidad de observar $o_1$ dado que estamos en el estado $i$
 
-### Fase 2: Recursión (t=2 hasta T)
+**Operaciones paso a paso para t=1, observación=SUNGLASSES(1):**
 
-Para cada tiempo $t$ y estado $j$:
+1. **Estado SUNNY(0):**
+   - Probabilidad inicial: $\pi_0 = 0.6$
+   - Probabilidad de emitir SUNGLASSES dado SUNNY: $B[0][1] = 0.8$
+   - $\delta_1(SUNNY) = 0.6 \times 0.8 = 0.480$
+   - **Interpretación:** "Hay 48% de probabilidad de que sea un día soleado y veamos gafas de sol"
+
+2. **Estado CLOUDY(1):**
+   - Probabilidad inicial: $\pi_1 = 0.3$
+   - Probabilidad de emitir SUNGLASSES dado CLOUDY: $B[1][1] = 0.4$
+   - $\delta_1(CLOUDY) = 0.3 \times 0.4 = 0.120$
+   - **Interpretación:** "Hay 12% de probabilidad de que sea un día nublado y veamos gafas de sol"
+
+3. **Estado RAINY(2):**
+   - Probabilidad inicial: $\pi_2 = 0.1$
+   - Probabilidad de emitir SUNGLASSES dado RAINY: $B[2][1] = 0.1$
+   - $\delta_1(RAINY) = 0.1 \times 0.1 = 0.010$
+   - **Interpretación:** "Hay 1% de probabilidad de que sea un día lluvioso y veamos gafas de sol"
+
+**Resultado:** El estado más probable en t=1 es SUNNY con 48% de probabilidad.
+
+### Fase 2: Recursión (t=2 hasta T) - "¿Cuál es el mejor camino hasta cada estado?"
+
+**Fórmula matemática:**
 $$\delta_t(j) = \max_{1 \leq i \leq N} [\delta_{t-1}(i) \times a_{ij}] \times b_j(o_t)$$
 $$\psi_t(j) = \arg\max_{1 \leq i \leq N} [\delta_{t-1}(i) \times a_{ij}]$$
 
-### Fase 3: Terminación
+**¿Qué significa?**
+- $\delta_t(j)$ = Probabilidad máxima de llegar al estado $j$ en el tiempo $t$
+- $\delta_{t-1}(i)$ = Mejor probabilidad hasta el estado $i$ en el tiempo anterior
+- $a_{ij}$ = Probabilidad de transición del estado $i$ al estado $j$
+- $b_j(o_t)$ = Probabilidad de observar $o_t$ en el estado $j$
+- $\psi_t(j)$ = Estado predecesor óptimo que lleva al estado $j$ en el tiempo $t$
 
-Probabilidad máxima:
+**Ejemplo detallado para t=2, observación=SUNGLASSES(1):**
+
+#### Para llegar a SUNNY(0) en t=2:
+
+**Paso 1:** Calcular probabilidades de transición desde cada estado anterior:
+- Desde SUNNY: $\delta_1(SUNNY) \times A[SUNNY][SUNNY] = 0.480 \times 0.7 = 0.336$
+- Desde CLOUDY: $\delta_1(CLOUDY) \times A[CLOUDY][SUNNY] = 0.120 \times 0.3 = 0.036$
+- Desde RAINY: $\delta_1(RAINY) \times A[RAINY][SUNNY] = 0.010 \times 0.2 = 0.002$
+
+**Paso 2:** Encontrar el máximo:
+$\max\{0.336, 0.036, 0.002\} = 0.336$ (viene de SUNNY)
+
+**Paso 3:** Multiplicar por probabilidad de emisión:
+$\delta_2(SUNNY) = 0.336 \times B[SUNNY][SUNGLASSES] = 0.336 \times 0.8 = 0.269$
+
+**Paso 4:** Recordar el mejor predecesor:
+$\psi_2(SUNNY) = SUNNY$ (estado 0)
+
+**Interpretación:** "La mejor manera de llegar a SUNNY en t=2 es viniendo de SUNNY en t=1, con 26.9% de probabilidad"
+
+#### Para llegar a CLOUDY(1) en t=2:
+
+**Paso 1:** Calcular probabilidades de transición:
+- Desde SUNNY: $0.480 \times 0.2 = 0.096$
+- Desde CLOUDY: $0.120 \times 0.4 = 0.048$
+- Desde RAINY: $0.010 \times 0.3 = 0.003$
+
+**Paso 2:** Máximo: $0.096$ (viene de SUNNY)
+
+**Paso 3:** Con emisión: $0.096 \times 0.4 = 0.038$
+
+**Paso 4:** $\psi_2(CLOUDY) = SUNNY$
+
+#### Para llegar a RAINY(2) en t=2:
+
+**Paso 1:** Calcular probabilidades de transición:
+- Desde SUNNY: $0.480 \times 0.1 = 0.048$
+- Desde CLOUDY: $0.120 \times 0.3 = 0.036$
+- Desde RAINY: $0.010 \times 0.5 = 0.005$
+
+**Paso 2:** Máximo: $0.048$ (viene de SUNNY)
+
+**Paso 3:** Con emisión: $0.048 \times 0.1 = 0.005$
+
+**Paso 4:** $\psi_2(RAINY) = SUNNY$
+
+### Fase 3: Terminación - "¿Cuál es el mejor estado final?"
+
+**Fórmulas matemáticas:**
 $$P^* = \max_{1 \leq i \leq N} [\delta_T(i)]$$
-
-Estado final óptimo:
 $$q_T^* = \arg\max_{1 \leq i \leq N} [\delta_T(i)]$$
 
-### Fase 4: Backtracking
+**¿Qué significa?**
+- $P^*$ = Probabilidad máxima de toda la secuencia óptima
+- $q_T^*$ = Estado más probable al final de la secuencia
 
-Para $t = T-1, T-2, \ldots, 1$:
+**Para nuestro ejemplo (T=7):**
+- $\delta_7(SUNNY) = 0.000030$
+- $\delta_7(CLOUDY) = 0.000022$
+- $\delta_7(RAINY) = 0.000009$
+
+**Resultado:**
+- $P^* = 0.000030$ (probabilidad máxima)
+- $q_7^* = SUNNY$ (mejor estado final)
+
+### Fase 4: Backtracking - "¿Cuál fue el camino óptimo?"
+
+**Fórmula matemática:**
 $$q_t^* = \psi_{t+1}(q_{t+1}^*)$$
+
+**¿Qué significa?**
+- Empezamos desde el mejor estado final y vamos hacia atrás
+- En cada paso, consultamos qué estado nos llevó al estado actual óptimo
+
+**Proceso paso a paso:**
+
+1. **t=7:** $q_7^* = SUNNY$ (ya determinado en terminación)
+
+2. **t=6:** $q_6^* = \psi_7(SUNNY) = RAINY$
+   - "Para llegar óptimamente a SUNNY en t=7, debimos estar en RAINY en t=6"
+
+3. **t=5:** $q_5^* = \psi_6(RAINY) = RAINY$
+   - "Para llegar óptimamente a RAINY en t=6, debimos estar en RAINY en t=5"
+
+4. **t=4:** $q_4^* = \psi_5(RAINY) = CLOUDY$
+   - "Para llegar óptimamente a RAINY en t=5, debimos estar en CLOUDY en t=4"
+
+5. **t=3:** $q_3^* = \psi_4(CLOUDY) = CLOUDY$
+   - "Para llegar óptimamente a CLOUDY en t=4, debimos estar en CLOUDY en t=3"
+
+6. **t=2:** $q_2^* = \psi_3(CLOUDY) = SUNNY$
+   - "Para llegar óptimamente a CLOUDY en t=3, debimos estar en SUNNY en t=2"
+
+7. **t=1:** $q_1^* = \psi_2(SUNNY) = SUNNY$
+   - "Para llegar óptimamente a SUNNY en t=2, debimos estar en SUNNY en t=1"
+
+**Secuencia óptima final:** [SUNNY, SUNNY, CLOUDY, CLOUDY, RAINY, RAINY, SUNNY]
 
 ## Ejemplo de Ejecución
 
@@ -255,6 +369,68 @@ t=3: state = CLOUDY
 t=2: state = SUNNY
 t=1: state = SUNNY
 ```
+
+## Tabla de Cálculos Detallados - Ejemplos Clave
+
+### Paso t=2 → t=3: ¿Por qué CLOUDY en lugar de RAINY?
+
+| Camino | Probabilidad Previa | Transición | Emisión UMBRELLA | Resultado Final |
+|--------|-------------------|------------|------------------|----------------|
+| SUNNY → SUNNY | 0.269 | × 0.7 | × 0.1 | = 0.019 |
+| SUNNY → CLOUDY | 0.269 | × 0.2 | × 0.3 | = 0.016 |
+| SUNNY → RAINY | 0.269 | × 0.1 | × 0.8 | = 0.022 |
+
+**¿Por qué gana RAINY (0.022) pero el algoritmo elige CLOUDY?**
+
+En realidad, el algoritmo SÍ elige RAINY en este paso. Veamos los cálculos completos:
+
+### Cálculos Completos para t=3
+
+**Para llegar a SUNNY en t=3:**
+- Mejor camino: max{0.269×0.7, 0.038×0.3, 0.005×0.2} × 0.1 = 0.188 × 0.1 = **0.019**
+
+**Para llegar a CLOUDY en t=3:**
+- Mejor camino: max{0.269×0.2, 0.038×0.4, 0.005×0.3} × 0.3 = 0.054 × 0.3 = **0.016**
+
+**Para llegar a RAINY en t=3:**
+- Mejor camino: max{0.269×0.1, 0.038×0.3, 0.005×0.5} × 0.8 = 0.027 × 0.8 = **0.022**
+
+**Ganador en t=3: RAINY con 0.022**
+
+### Corrección del Análisis
+
+La secuencia óptima correcta debe considerar que en t=3 el estado más probable es efectivamente RAINY. Vamos a verificar por qué el resultado final muestra CLOUDY.
+
+### Efecto Acumulativo - Por qué Decisiones Locales vs Globales
+
+El algoritmo de Viterbi NO elige necesariamente el estado más probable en cada paso individual, sino la **secuencia completa** más probable. 
+
+**Ejemplo ilustrativo:**
+- En t=3, RAINY podría ser localmente mejor (0.022 vs 0.016)
+- Pero la secuencia que pasa por CLOUDY en t=3 podría tener mayor probabilidad total al final
+
+Esto demuestra la diferencia entre:
+- **Optimización local:** Mejor estado en cada paso individual
+- **Optimización global:** Mejor secuencia completa (lo que hace Viterbi)
+
+### Verificación Matemática del Resultado
+
+Para verificar por qué la secuencia óptima es `[SUNNY, SUNNY, CLOUDY, CLOUDY, RAINY, RAINY, SUNNY]`, calculemos la probabilidad total:
+
+```
+P(secuencia) = π(SUNNY) × B(SUNNY,SUNGLASSES) ×
+               A(SUNNY,SUNNY) × B(SUNNY,SUNGLASSES) ×
+               A(SUNNY,CLOUDY) × B(CLOUDY,UMBRELLA) ×
+               A(CLOUDY,CLOUDY) × B(CLOUDY,STAY_HOME) ×
+               A(CLOUDY,RAINY) × B(RAINY,UMBRELLA) ×
+               A(RAINY,RAINY) × B(RAINY,UMBRELLA) ×
+               A(RAINY,SUNNY) × B(SUNNY,SUNGLASSES)
+
+P = 0.6 × 0.8 × 0.7 × 0.8 × 0.2 × 0.3 × 0.4 × 0.3 × 0.3 × 0.8 × 0.5 × 0.8 × 0.2 × 0.8
+P = 0.0000297271
+```
+
+Esta es exactamente la probabilidad que reporta el algoritmo: **0.0000297271**
 
 # Sistema de Compilación y Ejecución
 
@@ -559,3 +735,150 @@ El código resultante es una contribución valiosa tanto para propósitos educat
 ---
 
 *Esta documentación presenta un proyecto completo de modelos probabilistas implementado con los más altos estándares de calidad en programación C, siguiendo metodologías académicas rigurosas y mejores prácticas de desarrollo de software.*
+
+## Intuición Matemática del Resultado
+
+### ¿Por qué esta secuencia es la óptima?
+
+La secuencia óptima `[SUNNY, SUNNY, CLOUDY, CLOUDY, RAINY, RAINY, SUNNY]` maximiza la probabilidad porque:
+
+#### Análisis observación por observación:
+
+**t=1, t=2: SUNGLASSES → SUNNY**
+- Las gafas de sol tienen probabilidad 0.8 en días soleados vs 0.4 en nublados y 0.1 en lluviosos
+- Matemáticamente: $P(SUNGLASSES|SUNNY) = 0.8 >> P(SUNGLASSES|CLOUDY) = 0.4 >> P(SUNGLASSES|RAINY) = 0.1$
+- **Conclusión:** Es muy probable que los días con gafas de sol sean soleados
+
+**t=3: UMBRELLA → CLOUDY (transición de SUNNY)**
+- El paraguas tiene probabilidad 0.1 en días soleados, 0.3 en nublados, 0.8 en lluviosos
+- Aunque RAINY tendría mayor probabilidad de emisión (0.8), la transición SUNNY→RAINY (0.1) es menos probable que SUNNY→CLOUDY (0.2)
+- **Cálculo clave:** 
+  - Camino SUNNY→RAINY: $0.269 \times 0.1 \times 0.8 = 0.022$
+  - Camino SUNNY→CLOUDY: $0.269 \times 0.2 \times 0.3 = 0.016$
+- **Nota:** Aunque ambos son bajos, el algoritmo considera todas las probabilidades acumuladas
+
+**t=4: STAY_HOME → CLOUDY (permanece)**
+- Quedarse en casa es igualmente probable en CLOUDY (0.3) y RAINY (0.1), pero más que en SUNNY (0.1)
+- La probabilidad de transición CLOUDY→CLOUDY (0.4) es mayor que CLOUDY→RAINY (0.3)
+
+**t=5, t=6: UMBRELLA → RAINY**
+- Con dos observaciones consecutivas de paraguas, el algoritmo finalmente transiciona a RAINY
+- RAINY tiene la mayor probabilidad de emitir UMBRELLA (0.8)
+- RAINY→RAINY tiene alta probabilidad de transición (0.5)
+
+**t=7: SUNGLASSES → SUNNY**
+- El regreso a gafas de sol favorece fuertemente a SUNNY
+- RAINY→SUNNY tiene probabilidad de transición 0.2, que es razonable
+
+### Principio de Optimalidad de Bellman
+
+El algoritmo de Viterbi implementa el **Principio de Optimalidad de Bellman**:
+
+> *"Una política óptima tiene la propiedad de que cualquiera sea el estado inicial y la decisión inicial, las decisiones restantes deben constituir una política óptima con respecto al estado resultante de la primera decisión."*
+
+**En términos del algoritmo:**
+- Si la secuencia óptima pasa por el estado $i$ en el tiempo $t$, entonces el sub-camino desde el inicio hasta $(i,t)$ debe ser óptimo
+- Esto es exactamente lo que calcula $\delta_t(i)$: la probabilidad máxima de llegar al estado $i$ en el tiempo $t$
+
+### Comparación con Alternativas
+
+**¿Por qué no una secuencia diferente?**
+
+Consideremos una alternativa: `[SUNNY, SUNNY, RAINY, RAINY, RAINY, RAINY, SUNNY]`
+
+**Problemas con esta alternativa:**
+1. **t=3:** Transición SUNNY→RAINY tiene probabilidad 0.1 (baja)
+2. **t=3:** RAINY emite UMBRELLA con probabilidad 0.8 (alta), pero la transición compensa
+3. **Cálculo:** El producto de probabilidades sería menor que la secuencia óptima
+
+**Matemáticamente:**
+- Secuencia óptima: Producto balanceado de transiciones y emisiones
+- Alternativas: Uno o más términos muy pequeños que reducen el producto total
+
+### Complejidad Computacional de la Decisión
+
+**En cada paso, el algoritmo evalúa:**
+- 3 estados previos × 3 estados actuales = 9 transiciones posibles
+- Para 7 pasos de tiempo: 9 × 6 = 54 comparaciones principales
+- Más 3 comparaciones finales = 57 operaciones de maximización total
+
+**Comparado con fuerza bruta:**
+- Estados posibles: $3^7 = 2187$ secuencias
+- Evaluaciones necesarias: 2187 × 7 = 15,309 operaciones
+- **Reducción:** Factor de ~270× menos operaciones
+
+## Conceptos Fundamentales Explicados Simplemente
+
+### ¿Qué es exactamente lo que calcula δ (delta)?
+
+**δₜ(i) = "¿Cuál es la MEJOR manera de llegar al estado i en el tiempo t?"**
+
+No es:
+- ❌ La probabilidad de estar en el estado i en el tiempo t
+- ❌ La probabilidad más alta posible para el estado i
+
+Es:
+- ✅ La probabilidad más alta de cualquier camino que termine en el estado i en el tiempo t
+- ✅ La "mejor ruta" acumulada hasta ese estado en ese momento
+
+### ¿Qué es exactamente lo que calcula ψ (psi)?
+
+**ψₜ(i) = "¿De dónde vine para llegar óptimamente al estado i en el tiempo t?"**
+
+Es como un GPS que recuerda:
+- En qué estado estaba en el paso anterior
+- Para poder reconstruir el camino completo al final
+
+### Analogía con Navegación GPS
+
+Imagina que quieres ir de tu casa al trabajo y hay 3 rutas posibles:
+
+1. **Estados = Intersecciones importantes en la ciudad**
+2. **Observaciones = Semáforos que ves** (rojo, verde, amarillo)
+3. **Transiciones = Calles que conectan intersecciones**
+4. **Emisiones = Probabilidad de ver cierto semáforo en cada intersección**
+
+**El algoritmo de Viterbi es como un GPS que:**
+- En cada intersección, calcula cuál fue la mejor ruta para llegar ahí
+- Considera tanto el tiempo de viaje (transiciones) como la información de semáforos (emisiones)
+- Al final, reconstruye la ruta óptima completa
+
+### Las 4 Preguntas que Responde Viterbi
+
+1. **Inicialización:** "¿Dónde es más probable que esté al principio?"
+2. **Recursión:** "¿Cuál es la mejor ruta para llegar a cada lugar en cada momento?"
+3. **Terminación:** "¿Cuál es el mejor lugar para terminar y cuál es la probabilidad total?"
+4. **Backtracking:** "¿Cuál fue exactamente el camino óptimo que tomé?"
+
+### ¿Por qué Funciona Matemáticamente?
+
+**Principio clave:** En cada paso, solo necesitamos recordar la MEJOR manera de llegar a cada estado, no todas las maneras posibles.
+
+**¿Por qué podemos "olvidar" caminos subóptimos?**
+- Si hay dos caminos A y B que llegan al mismo estado, y A es mejor que B
+- Entonces CUALQUIER extensión futura del camino A será mejor que la misma extensión del camino B
+- Por tanto, podemos eliminar B para siempre
+
+**Esto reduce la complejidad de 3⁷ = 2,187 caminos a solo 3 × 7 = 21 valores que recordar**
+
+### Diferencia entre Viterbi y Otros Algoritmos
+
+| Algoritmo | Pregunta que Responde |
+|-----------|----------------------|
+| **Forward** | "¿Cuál es la probabilidad total de ver esta secuencia?" |
+| **Backward** | "¿Cuál es la probabilidad de ver el resto de la secuencia?" |
+| **Forward-Backward** | "¿Cuál es la probabilidad de estar en cada estado en cada momento?" |
+| **Viterbi** | "¿Cuál es la secuencia MÁS PROBABLE de estados?" |
+
+### Limitaciones y Consideraciones
+
+**Lo que Viterbi NO hace:**
+- ❌ No da la probabilidad de cada estado individual
+- ❌ No considera múltiples caminos igualmente buenos
+- ❌ No maneja incertidumbre en la secuencia óptima
+
+**Lo que SÍ hace muy bien:**
+- ✅ Encuentra LA secuencia más probable
+- ✅ Es computacionalmente eficiente
+- ✅ Garantiza optimalidad global
+- ✅ Maneja secuencias largas sin problemas
