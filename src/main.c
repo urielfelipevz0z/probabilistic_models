@@ -1,6 +1,8 @@
+#define _POSIX_C_SOURCE 200112L  // For fileno()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>  // For isatty() and fileno()
 #include "bayesian.h"
 #include "hmm.h"
 
@@ -29,6 +31,11 @@ int main() {
         print_menu();
         
         if (scanf("%d", &opcion) != 1) {
+            // Check if we reached EOF (pipe closed)
+            if (feof(stdin)) {
+                printf("\nEntrada terminada. Saliendo del programa.\n");
+                break;
+            }
             printf("Error: Entrada inválida. Por favor ingrese un número.\n");
             // Clear the input buffer
             int c;
@@ -36,9 +43,14 @@ int main() {
             continue;
         }
         
-        // Clear any remaining input
+        // Clear any remaining input, but check for EOF
         int c;
         while ((c = getchar()) != '\n' && c != EOF);
+        
+        // If EOF was reached, break out of loop
+        if (c == EOF) {
+            continuar = 0;
+        }
         
         
         switch (opcion) {
@@ -92,8 +104,14 @@ int main() {
         }
         
         if (continuar) {
-            printf("\nPresione Enter para continuar...");
-            getchar(); // Wait for user to press Enter
+            // Check if input is from a terminal (interactive) or pipe/redirect
+            if (isatty(fileno(stdin))) {
+                printf("\nPresione Enter para continuar...");
+                getchar(); // Wait for user to press Enter
+            } else {
+                // If input is from pipe/redirect, don't wait for Enter
+                printf("\n"); // Just add a newline for better formatting
+            }
         }
     }
     
